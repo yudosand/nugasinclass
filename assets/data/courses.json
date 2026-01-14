@@ -1,0 +1,70 @@
+[
+
+  {
+    "id": "aljabar_linear_elementer",
+    "title": "Aljabar Linear Elementer Semester",
+    "total_sessions": 3,
+    "questions_per_session": 50,
+    "json": "assets/data/Alin_smt2.json",
+    "price": 15000,
+    "currency": "IDR"
+  },
+  
+  {
+    "id": "bahasa_inggris",
+    "title": "Bahasa Inggris",
+    "total_sessions": 3,
+    "questions_per_session": 50,
+    "json": "assets/data/Bing_smt2.json",
+    "price": 15000,
+    "currency": "IDR"
+  },
+  {
+    "id": "basis_data",
+    "title": "Basis Data",
+    "total_sessions": 3,
+    "questions_per_session": 50,
+    "json": "assets/data/Basisdata_smt2.json",
+    "price": 15000,
+    "currency": "IDR"
+  },
+  
+  {
+    "id": "pengantar_statistika",
+    "title": "Pengantar Statistika",
+    "total_sessions": 3,
+    "questions_per_session": 50,
+    "json": "assets/data/pengantar_statiska.json",
+    "price": 15000,
+    "currency": "IDR"
+  },
+  {
+    "id": "sistem_operasi",
+    "title": "Sistem Operasi",
+    "total_sessions": 3,
+    "questions_per_session": 50,
+    "json": "assets/data/Sistemoperasi_smt2.json",
+    "price": 15000,
+    "currency": "IDR"
+  },
+  {
+    "id": "struktur_data",
+    "title": "Struktur Data",
+    "total_sessions": 3,
+    "questions_per_session": 50,
+    "json": "assets/data/Strukturdata_smt2.json",
+    "price": 15000,
+    "currency": "IDR"
+  },
+  {
+    "id": "pancasila",
+    "title": "Pancasila",
+    "total_sessions": 3,
+    "questions_per_session": 50,
+    "json": "assets/data/Pancasila_smt2.json",
+    "price": 15000,
+    "currency": "IDR"
+  }
+
+
+]

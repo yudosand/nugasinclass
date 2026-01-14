@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Daftar Harga - Nugasin Class</title>
+
+  
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('nc_theme');
+        if (!t) {
+          t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-bs-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/app.css" />
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top">
+    <div class="container py-1">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="index.html">
+        <img src="assets/img/logo-nugasin-class.png" alt="Logo Nugasin Class" />
+      </a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMain" aria-controls="navMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navMain">
+        <div class="navbar-nav ms-auto align-items-lg-center gap-lg-2">
+          <a class="nav-link" data-nav href="index.html">Beranda</a>
+          <a class="nav-link" data-nav href="pricelist.html">Daftar Harga</a>
+          <a class="nav-link" data-nav href="testimoni.html">Testimoni</a>
+          <div class="d-lg-none my-2"></div>
+          <button id="btnTheme" class="btn btn-outline-secondary btn-sm rounded-pill px-3" type="button" aria-label="Toggle theme">🌙</button>
+
+          <a class="btn btn-primary rounded-pill px-3" target="_blank" rel="noopener noreferrer" href="https://wa.me/6285861015161">Hubungi Kami</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="container py-5">
+      <div class="text-center">
+        <div class="badge badge-soft rounded-pill px-3 py-2 mb-3">NUGASIN CLASS</div>
+        <h1 class="fw-bold" style="font-weight:800;">Semester Helper Pack</h1>
+        <p class="text-secondary mb-0">Untuk kamu yang sibuk, biar tugas tetap aman.</p>
+      </div>
+    </div>
+  </header>
+
+  <main class="container py-5">
+    <div class="row g-3 g-lg-4">
+      <div class="col-12 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm card-hover">
+          <div class="card-body p-4">
+            <h5 class="fw-bold">All Prodi Package</h5>
+            <p class="text-secondary mb-3">Tidak termasuk tugas praktikum</p>
+            <div class="display-6 fw-bold mb-3">500k <span class="fs-6 text-secondary">/semester</span></div>
+            <div class="text-uppercase small text-secondary fw-semibold mb-2">What included</div>
+            <ul class="list-unstyled mb-4">
+              <li class="d-flex gap-2"><span class="text-success">✓</span><span>Absen sesi</span></li>
+              <li class="d-flex gap-2"><span class="text-success">✓</span><span>Pengerjaan Diskusi</span></li>
+              <li class="d-flex gap-2"><span class="text-success">✓</span><span>Pengerjaan Tugas Teori</span></li>
+              <li class="d-flex gap-2"><span class="text-danger">✕</span><span class="text-secondary">Tugas Praktikum</span></li>
+            </ul>
+            <a class="btn btn-outline-primary w-100 rounded-3" target="_blank" rel="noopener noreferrer" href="https://wa.me/6285861015161?text=Halo%20Admin,%20mau%20ambil%20All%20Prodi%20Package">Order Now</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm card-hover border" style="border-color: rgba(37,99,235,.25) !important;">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start">
+              <h5 class="fw-bold mb-0">Sistem Informasi Package</h5>
+              <span class="badge bg-soft-primary text-primary-nc rounded-pill">Rekomendasi</span>
+            </div>
+            <p class="text-secondary mb-3">Full cover semua tugas</p>
+            <div class="display-6 fw-bold mb-3 text-primary-nc">600k <span class="fs-6 text-secondary">/semester</span></div>
+            <div class="text-uppercase small text-secondary fw-semibold mb-2">What included</div>
+            <ul class="list-unstyled mb-4">
+              <li class="d-flex gap-2"><span class="text-success">✓</span><span>Absen sesi</span></li>
+              <li class="d-flex gap-2"><span class="text-success">✓</span><span>Pengerjaan Diskusi</span></li>
+              <li class="d-flex gap-2"><span class="text-success">✓</span><span>Pengerjaan Tugas Teori</span></li>
+              <li class="d-flex gap-2"><span class="text-success">✓</span><span>Tugas Praktikum</span></li>
+            </ul>
+            <a class="btn btn-primary w-100 rounded-3" target="_blank" rel="noopener noreferrer" href="https://wa.me/6285861015161?text=Halo%20Admin,%20mau%20ambil%20SI%20Package%20Full%20Cover">Order Now</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-4">
+        <div class="card h-100 border-0 shadow-sm card-hover">
+          <div class="card-body p-4">
+            <h5 class="fw-bold">Tugas Praktikum</h5>
+            <p class="text-secondary mb-3">Only for Sistem Informasi</p>
+            <div class="display-6 fw-bold mb-3">200k <span class="fs-6 text-secondary">/tugas</span></div>
+            <div class="text-uppercase small text-secondary fw-semibold mb-2">What included</div>
+            <ul class="list-unstyled mb-4">
+              <li class="d-flex gap-2"><span class="text-success">✓</span><span>Tugas Praktikum</span></li>
+              <li class="d-flex gap-2"><span class="text-success">✓</span><span>Edit Video Tugas Praktikum</span></li>
+              <li class="d-flex gap-2"><span class="text-success">✓</span><span>File siap kirim</span></li>
+            </ul>
+            <a class="btn btn-outline-primary w-100 rounded-3" target="_blank" rel="noopener noreferrer" href="https://wa.me/6285861015161?text=Halo%20Admin,%20mau%20order%20Tugas%20Praktikum%20Satuan">Order Now</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="my-5" />
+
+    <section>
+      <div class="text-center mb-4">
+        <h2 class="fw-bold">Learning & Exam Pack</h2>
+        <p class="text-secondary mb-0">Bimbingan belajar dan persiapan ujian mandiri.</p>
+      </div>
+
+      <div class="row g-3 g-lg-4 justify-content-center">
+        <div class="col-12 col-lg-5">
+          <div class="card h-100 border-0 shadow-sm card-hover">
+            <div class="card-body p-4">
+              <div class="fs-3">👨‍🏫</div>
+              <h5 class="fw-bold mt-2">Kelas Privat / Bimbingan</h5>
+              <div class="h4 fw-bold mb-2">Rp 50.000 <span class="fs-6 text-secondary">/sesi</span></div>
+              <p class="text-secondary">Bimbingan intensif materi sulit & coding.</p>
+              <ul class="mb-4">
+                <li>Membahas Tugas Praktikum 1 s/d 3</li>
+                <li>Bedah modul & materi sulit</li>
+                <li>Live via Zoom/Gmeet</li>
+              </ul>
+              <a class="btn btn-outline-primary w-100 rounded-3" target="_blank" rel="noopener noreferrer" href="https://wa.me/6285861015161?text=Halo%20Admin,%20mau%20daftar%20Kelas%20Privat">Daftar Kelas</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-5">
+          <div class="card h-100 border-0 shadow-sm card-hover">
+            <div class="card-body p-4">
+              <div class="fs-3">📝</div>
+              <h5 class="fw-bold mt-2">Simulasi Ujian (UAS)</h5>
+              <div class="h4 fw-bold mb-2">Rp 15.000 <span class="fs-6 text-secondary">/akses</span></div>
+              <p class="text-secondary">Latihan soal try out mirip aslinya.</p>
+              <ul class="mb-4">
+                <li>Akses ujian CAT + timer realtime</li>
+                <li>Kunci jawaban & pembahasan</li>
+                <li><b>Dapat mentahan file soal (PDF)</b></li>
+              </ul>
+              <a class="btn btn-primary w-100 rounded-3" target="_blank" rel="noopener noreferrer" href="https://wa.me/6285861015161?text=Halo%20Admin,%20mau%20beli%20paket%20Simulasi%20UAS">Beli Akses</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container py-4 d-flex flex-column flex-md-row gap-2 justify-content-between align-items-md-center">
+      <div class="text-secondary">© <span data-year></span> Nugasin Class. Solusi Akademikmu.</div>
+      <a class="text-secondary text-decoration-none" href="index.html">Kembali ke Beranda</a>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/app.js" defer></script>
+</body>
+</html>

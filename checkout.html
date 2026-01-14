@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkout - Nugasin Class</title>
+
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('nc_theme');
+        if (!t) t = (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-bs-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/app.css" />
+</head>
+
+<body>
+  <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom sticky-top">
+    <div class="container py-1">
+      <a class="navbar-brand d-flex align-items-center gap-2 fw-bold" href="index.html">
+        <img src="assets/img/logo-nugasin-class.png" alt="Logo Nugasin Class" />
+      </a>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <button id="btnTheme" class="btn btn-outline-secondary btn-sm rounded-pill px-3" type="button" aria-label="Toggle theme">🌙</button>
+        <a class="btn btn-outline-secondary btn-sm rounded-pill px-3" href="simulasi.html">Kembali</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-8">
+        <div class="card border-0 shadow-sm">
+          <div class="card-body p-4 p-lg-5">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+              <div>
+                <div class="badge badge-soft rounded-pill px-3 py-2 mb-2">Checkout</div>
+                <h1 class="h3 fw-bold mb-1">Pembayaran Simulasi UAS</h1>
+                <div class="text-secondary">Setelah pembayaran berhasil, kamu akan mendapatkan <span class="fw-semibold">ID Ujian (unik)</span> untuk mengakses mata kuliah yang dipilih.</div>
+              </div>
+            </div>
+
+            <div id="checkoutAlert" class="alert alert-info d-none" role="alert"></div>
+
+            <div class="row g-3 mt-1">
+              <div class="col-12 col-lg-7">
+                <div class="border rounded-4 p-3">
+                  <div class="small text-secondary">Mata Kuliah</div>
+                  <div id="courseTitle" class="fw-bold fs-5">-</div>
+                  <div class="small text-secondary mt-1">3 sesi • 50 soal/sesi (total 150)</div>
+                  <hr class="my-3"/>
+                  <div class="d-flex justify-content-between">
+                    <div class="text-secondary">Harga</div>
+                    <div id="coursePrice" class="fw-bold">-</div>
+                  </div>
+                  <div class="small text-secondary mt-2">*Nanti ini pake midtrans boleh.</div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-5">
+                <div class="border rounded-4 p-3">
+                  <div class="fw-bold mb-2">Metode Pembayaran</div>
+                  <div class="vstack gap-2">
+                    <label class="border rounded-3 p-3 d-flex align-items-center gap-2">
+                      <input type="radio" name="pay" class="form-check-input" checked>
+                      <span>Payment Gateway (3rd party)</span>
+                    </label>
+                    <label class="border rounded-3 p-3 d-flex align-items-center gap-2 opacity-50">
+                      <input type="radio" name="pay" class="form-check-input" disabled>
+                      <span>QRIS (coming soon)</span>
+                    </label>
+                    <label class="border rounded-3 p-3 d-flex align-items-center gap-2 opacity-50">
+                      <input type="radio" name="pay" class="form-check-input" disabled>
+                      <span>GoPay (coming soon)</span>
+                    </label>
+                  </div>
+
+                  <button id="btnPay" class="btn btn-primary w-100 mt-3">Bayar</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Success Modal -->
+  <div class="modal fade" id="paidModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Pembayaran Berhasil</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
+        </div>
+        <div class="modal-body">
+          <div class="text-secondary">Simpan ID Ujian ini. 1 ID = 1 mata kuliah = 1x ujian.</div>
+          <div class="border rounded-3 p-3 mt-2 d-flex justify-content-between align-items-center gap-2">
+            <div class="fw-bold" id="accessIdText">-</div>
+            <button id="btnCopy" class="btn btn-outline-secondary btn-sm">Copy</button>
+          </div>
+          <div class="small text-secondary mt-2">Gunakan ID ini di halaman Akses Ujian untuk mulai ujian.</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Tutup</button>
+          <a id="btnGoAccess" class="btn btn-primary" href="akses.html">Ke Akses Ujian</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/app.js" defer></script>
+  <script src="assets/js/nc-access.js" defer></script>
+  <script src="assets/js/checkout.js" defer></script>
+</body>
+</html>
