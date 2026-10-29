@@ -22,3 +22,5 @@ For a normal rollback, revert the faulty commit in Git and push the revert to `m
 To pause auto-deploy, disable **Test and deploy Nugasin** in GitHub Actions. To update the SSH key, replace the dedicated key in the server's authorized_keys and the corresponding encrypted GitHub Secret. Keep the local maintenance key separate.
 
 No deployment UI is added to the application's backoffice.
+
+CloudPanel extra SSH users share the site group but may not own existing directories extracted with mode 755. Initial setup uses CloudPanel's authorized `clpctl system:permissions:reset --directories=770 --files=660 --path=...` for the specific managed code directories that need it, keeping the site's group access. The deployment preflight checks both parent and directory write permissions before entering maintenance. If a later manual upload restores incompatible permissions, correct only the reported code directory through CloudPanel and rerun the workflow. Never reset permissions recursively on unrelated sites or private user data.

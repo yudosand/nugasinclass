@@ -32,6 +32,8 @@ PY
 PATHS=(app config routes database/migrations database/seeders database/factories resources/views resources/css resources/js public/assets vendor bootstrap/app.php bootstrap/providers.php artisan composer.json composer.lock package.json vite.config.js public/index.php public/.htaccess public/robots.txt public/favicon.ico public/favicon-32.png public/favicon-192.png public/apple-touch-icon.png bootstrap/cache)
 for path in "${PATHS[@]}"; do
   [[ -e "$STAGE/$path" && ! -L "$APP/$path" && -w "$(dirname "$APP/$path")" ]] || { echo "Unusable code path: $path"; exit 1; }
+  # Moving a directory to the private backup also needs write permission on that directory.
+  if [[ -d "$APP/$path" && ! -w "$APP/$path" ]]; then echo "Code directory is not writable: $path. Reset its permissions through CloudPanel before retrying."; exit 1; fi
 done
 find "$STAGE" -type d -exec chmod 2770 {} +
 find "$STAGE" -type f -exec chmod 660 {} +

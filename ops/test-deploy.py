@@ -5,7 +5,7 @@ source=pathlib.Path(__file__).with_name('deploy.sh').read_text()
 paths=source.split('PATHS=(',1)[1].split(')',1)[0].split()
 directories={'app','config','routes','database/migrations','database/seeders','database/factories','resources/views','resources/css','resources/js','public/assets','vendor','bootstrap/cache'}
 commit='a'*40
-for failure in ['', 'config:cache', 'http', 'digest']:
+for failure in ['', 'config:cache', 'http', 'digest', 'permissions']:
     with tempfile.TemporaryDirectory(prefix='nugasin-deploy-test-') as folder:
         root=pathlib.Path(folder);app=root/'app';state=root/'state';stage=root/'release';tools=root/'bin'
         for p in [app,state/'incoming',stage,tools,app/'storage/framework',app/'resources/exams']:
@@ -39,6 +39,7 @@ for arg in "$@"; do if [[ "$arg" == *release.json* ]]; then printf '{"commit":"%
         script=root/'deploy.sh'
         script.write_text(source.replace('APP=/home/nugasinclass/htdocs/nugasinclass.web.id',f'APP={app}').replace('STATE=/home/nugasindeploy/.nugasin-deploy',f'STATE={state}').replace('PHP=/usr/bin/php8.5',f'PHP={php}'))
         env=os.environ|{'PATH':str(tools)+':'+os.environ['PATH'],'TEST_APP':str(app),'TEST_COMMIT':commit,'FAILURE':failure}
+        if failure=='permissions':(app/'database/migrations').chmod(0o550)
         result=subprocess.run(['bash',str(script),commit,'0'*64 if failure=='digest' else digest],env=env,capture_output=True,text=True)
         assert (result.returncode==0)==(not failure),(failure,result.stdout,result.stderr)
         for path in paths:
