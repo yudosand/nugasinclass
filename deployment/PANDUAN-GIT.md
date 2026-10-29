@@ -23,7 +23,7 @@ Jangan memakai git add -f untuk melewati aturan pengabaian data privat.
 
 ## Auto-deploy
 
-Belum ada workflow yang mengubah server. Setup membutuhkan host/port SSH, site user, root aplikasi, versi PHP, autentikasi deploy dan lokasi backup. Simpan rahasia di pengelola secrets atau SSH lokal, bukan dalam source atau chat.
+Workflow Test and deploy Nugasin kini menyiapkan deployment untuk push main melalui SSH dengan secret terenkripsi. Lihat ops/README.md untuk target server, backup dan cara menjeda deployment. Keberhasilan pemasangan harus dilihat dari hasil run GitHub Actions.
 
 Deployment perlu mempertahankan konfigurasi/data, menyiapkan dependency produksi dan materi privat, memeriksa versi yang dipasang, serta memeriksa website setelah update. Jangan menjalankan git clean -fdx di produksi karena dapat menghapus .env, storage dan bank soal.
 

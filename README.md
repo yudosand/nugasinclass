@@ -18,7 +18,7 @@ File dalam public/assets/pdf/ dan public/assets/data/ merupakan penonaktifan mat
 
 Lihat [Panduan Git](deployment/PANDUAN-GIT.md) dan [Pembaruan Simulasi UAS](deployment/UPDATE-SIMULASI-UAS.md).
 
-Push ke GitHub belum otomatis mengubah hosting. Integrasi deployment memerlukan akses SSH, site user, direktori aplikasi, serta autentikasi server yang dikonfigurasi terpisah.
+Workflow auto-deploy tersedia untuk push ke main: tes PHP 8.5, build produksi, upload SSH, backup kode, pemasangan dan pemeriksaan website. Lihat [panduan auto-deploy](ops/README.md). Status setiap deployment terlihat di GitHub Actions.
 
 Jangan commit .env, APP_KEY, token, private key, database, file unggahan, log, backup atau ZIP deploy. Saat deployment pertahankan .env, storage/, public/storage, .installed, dan bank soal privat. Jangan menjalankan git clean -fdx di aplikasi produksi.
 

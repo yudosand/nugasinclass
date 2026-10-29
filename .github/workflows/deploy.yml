@@ -1,0 +1,61 @@
+name: Test and deploy Nugasin
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: nugasin-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: shivammathur/setup-php@d52fc211a0436f8839a587b3b5b8efddab4744ea
+        with:
+          php-version: '8.5'
+          extensions: mbstring, pdo_mysql, pdo_sqlite, gd, zip
+          tools: composer:v2
+          coverage: none
+      - name: Install and test
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress
+          export APP_KEY="base64:$(php -r 'echo base64_encode(random_bytes(32));')"
+          php vendor/bin/phpunit
+          bash -n ops/deploy.sh
+          python3 ops/test-deploy.py
+      - name: Build production release
+        run: |
+          composer install --no-dev --no-interaction --prefer-dist --no-progress --optimize-autoloader --no-scripts
+          php ops/package-release.php "$RUNNER_TEMP/nugasin-release" "$GITHUB_SHA"
+          tar -czf "$RUNNER_TEMP/nugasin-release.tar.gz" -C "$RUNNER_TEMP/nugasin-release" .
+      - name: Deploy and verify website
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.NUGASIN_DEPLOY_SSH_KEY }}
+          DEPLOY_KNOWN_HOSTS: ${{ secrets.NUGASIN_DEPLOY_KNOWN_HOSTS }}
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$HOME/.ssh"
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$HOME/.ssh/nugasin"
+          printf '%s\n' "$DEPLOY_KNOWN_HOSTS" > "$HOME/.ssh/known_hosts"
+          trap 'rm -f "$HOME/.ssh/nugasin"' EXIT
+          SSH_OPTS=(-i "$HOME/.ssh/nugasin" -o BatchMode=yes -o StrictHostKeyChecking=yes -o ConnectTimeout=15)
+          TARGET=nugasindeploy@137.59.126.155
+          INCOMING=/home/nugasindeploy/.nugasin-deploy/incoming
+          ssh "${SSH_OPTS[@]}" "$TARGET" "umask 077; mkdir -p '$INCOMING'"
+          scp "${SSH_OPTS[@]}" "$RUNNER_TEMP/nugasin-release.tar.gz" "$TARGET:$INCOMING/$GITHUB_SHA.tar.gz"
+          scp "${SSH_OPTS[@]}" ops/deploy.sh "$TARGET:$INCOMING/$GITHUB_SHA.sh"
+          HASH=$(sha256sum "$RUNNER_TEMP/nugasin-release.tar.gz" | cut -d ' ' -f1)
+          ssh "${SSH_OPTS[@]}" "$TARGET" "bash '$INCOMING/$GITHUB_SHA.sh' '$GITHUB_SHA' '$HASH'"
+          echo "Deployed commit $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
