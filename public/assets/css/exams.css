@@ -1,0 +1,4 @@
+body{background:#f5f7fb;color:#1e293b} .exam-page{display:block;width:100%;height:auto;max-width:1192px;margin:auto;background:white}.exam-protected{user-select:none;-webkit-user-select:none}.exam-protected img{-webkit-user-drag:none}.exam-protected.is-hidden{visibility:hidden}@media print{body{display:none!important}}@media(max-width:600px){.container{padding-left:12px;padding-right:12px}.exam-protected{overflow-x:auto}.exam-page.is-zoomed{min-width:900px}}
+.exam-written-answer{white-space:pre-wrap;max-width:500px;overflow-wrap:anywhere} #study-page{width:90px}
+
+.exam-protected{overflow-x:auto}.exam-page.is-zoomed{min-width:900px}

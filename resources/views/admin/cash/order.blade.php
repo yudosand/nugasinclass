@@ -1,0 +1,27 @@
+<div class="card border-0 shadow-sm mb-4"><div class="card-body p-4"><h2 class="h5 fw-bold">Pembayaran & Sisa Tagihan</h2><div class="row g-3"><div class="col-md-4">Total Harga<div class="h5">{{ \App\Support\Cuanin::format((int) $order->amount) }}</div></div><div class="col-md-4">Diterima & Terverifikasi<div class="h5 text-success">{{ \App\Support\Cuanin::format($order->received_amount) }}</div></div><div class="col-md-4">Sisa Tagihan<div class="h5 text-primary">{{ \App\Support\Cuanin::format($order->outstanding_amount) }}</div></div></div><span class="badge bg-primary">{{ $order->payment_label }}</span>@if($order->payment_status === 'paid') <span class="badge bg-warning text-dark">Ada bukti baru menunggu verifikasi</span>@endif
+<div class="table-responsive mt-3"><table class="table"><thead><tr><th>Tanggal</th><th>Referensi</th><th>Diterima</th><th>Bukti</th></tr></thead><tbody>@forelse($receipts as $receipt)<tr><td>{{ \App\Support\Cuanin::date($receipt->received_at) }}</td><td>{{ $receipt->reference }}</td><td>{{ \App\Support\Cuanin::format($receipt->amount) }}</td><td>@if($receipt->proof)<a href="{{ route('payment.receipt-proof', $receipt->id) }}" target="_blank" rel="noopener">Lihat Bukti</a>@else Catatan pembayaran admin @endif</td></tr>@empty<tr><td colspan="4">Belum ada pembayaran terverifikasi.</td></tr>@endforelse</tbody></table></div>
+@if($allocations->isNotEmpty())<h3 class="h6 fw-bold">Rincian Pembagian Pembayaran</h3><div class="table-responsive"><table class="table"><thead><tr><th>Penerimaan #</th><th>Penerima</th><th>Bagian</th><th>Nominal</th></tr></thead><tbody>@foreach($allocations as $allocation)<tr><td>{{ $allocation->receipt_id }}</td><td>{{ $allocation->name }}</td><td>{{ ['admin_share'=>'Bagian admin','referral'=>'Komisi referral 10%','bonus'=>'Bonus marketing'][$allocation->kind] }}</td><td>{{ \App\Support\Cuanin::format($allocation->amount) }}</td></tr>@endforeach</tbody></table></div>@endif
+</div></div>
+@include('admin.cash.split-form')
+@if($order->outstanding_amount > 0)
+@include('admin.cash.order-correction')
+<div class="card border-0 shadow-sm mb-4"><div class="card-body p-4"><h2 class="h5 fw-bold">Catat Pembayaran Diterima</h2><p>Masukkan nominal pembayaran baru, bukan total harga atau total kumulatif. Periksa mutasi rekening/QRIS sebelum mencatat. Gunakan nomor referensi transfer yang sama jika mencoba ulang.</p>
+<form method="POST" action="{{ route('admin.orders.receipts', $order->id) }}" class="row g-3">@csrf<input type="hidden" name="request_key" value="{{ (string) \Illuminate\Support\Str::uuid() }}">
+<div class="col-md-6"><label for="receipt_amount" class="form-label">Nominal diterima (Rp)</label><input id="receipt_amount" name="amount" type="text" inputmode="numeric" class="form-control" placeholder="Contoh: 500.000" value="{{ old('amount') }}" required></div>
+<div class="col-md-6"><label for="received_at" class="form-label">Tanggal pembayaran (WIB)</label><input id="received_at" type="datetime-local" name="received_at" class="form-control" value="{{ old('received_at', now()->timezone('Asia/Jakarta')->format('Y-m-d\TH:i')) }}" required></div>
+<div class="col-md-6"><label for="reference" class="form-label">Referensi transfer unik</label><input id="reference" name="reference" class="form-control" maxlength="160" value="{{ old('reference') }}" required></div><div class="col-md-6"><label for="receipt_password" class="form-label">Password admin Anda</label><input id="receipt_password" name="current_password" type="password" autocomplete="current-password" class="form-control" required></div>
+<div class="col-12"><label for="receipt_notes" class="form-label">Catatan (opsional)</label><textarea id="receipt_notes" name="notes" class="form-control" maxlength="2000">{{ old('notes') }}</textarea></div>
+<div class="col-12"><div class="form-check"><input class="form-check-input" id="verified_receipt" type="checkbox" name="verified" value="1" required><label for="verified_receipt" class="form-check-label">Uang sejumlah ini sudah benar-benar diterima dan belum dicatat sebelumnya.</label></div><div class="form-check mt-2"><input class="form-check-input" id="activate_client" name="activate_client" type="checkbox" value="1" checked><label for="activate_client" class="form-check-label">{{ \App\Support\Exams::isOrder($order->id) ? 'Setujui pembayaran. Akses Simulasi UAS terbuka setelah tagihan lunas.' : 'Izinkan client mulai/lanjut layanan, termasuk jika baru membayar sebagian.' }}</label></div></div><div class="col-12"><button class="btn btn-primary rounded-pill">Simpan Pembayaran & Bagikan Cuanin</button></div></form></div></div>
+@endif
+@if($orderChanges->isNotEmpty())
+<div class="card border-0 shadow-sm mb-4"><div class="card-body p-4">
+<h2 class="h5 fw-bold">Riwayat Koreksi Order</h2>
+@foreach($orderChanges as $change)
+<div class="border-top py-3">
+<div class="fw-semibold">{{ \App\Support\Cuanin::date($change->created_at) }} · {{ $change->actor_name }}</div>
+<div>{{ $change->old_package }} ({{ \App\Support\Cuanin::format($change->old_total) }}) → {{ $change->new_package }} ({{ \App\Support\Cuanin::format($change->new_total) }})</div>
+<div class="text-muted">Diterima saat koreksi: {{ \App\Support\Cuanin::format($change->received) }}. {{ $change->reason }}</div>
+</div>
+@endforeach
+</div></div>
+@endif

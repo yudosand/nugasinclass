@@ -1,0 +1,7 @@
+@extends('layouts.admin')
+@section('title','Client Simulasi UAS - Admin')
+@section('content')
+<h1 class="h3 fw-bold">Client Simulasi UAS</h1><p class="text-secondary">{{ $count }} pengguna Simulasi UAS terdaftar. Satu pengguna dapat memiliki beberapa paket.</p>
+<form method="GET" class="d-flex gap-2 mb-4"><input name="search" value="{{ $search }}" class="form-control" placeholder="Cari nama, nomor HP, atau paket" aria-label="Cari client simulasi"><button class="btn btn-primary">Cari</button></form>
+<div class="card p-3 rounded-4"><div class="table-responsive"><table class="table align-middle"><thead><tr><th>Client</th><th>Paket</th><th>Order</th><th>Pembayaran</th><th>Akses</th><th>Aksi</th></tr></thead><tbody>@forelse($purchases as $purchase)@php($order=$orders[$purchase->order_id]??null)<tr><td>{{ $purchase->name }}<div class="text-secondary small">{{ $purchase->nomor_hp }}</div></td><td>{{ $purchase->title??'Belum memilih paket' }}</td>@if($order)<td>{{ $order->order_number }}<div>Rp {{ number_format($order->amount,0,',','.') }}</div></td><td>{{ $order->payment_label }}</td><td>{{ \App\Support\Exams::paid($order)?'Aktif':'Belum aktif' }}</td><td><a class="btn btn-outline-primary btn-sm rounded-pill" href="{{ route('admin.orders.show',$order->id) }}">Verifikasi Pembayaran</a></td>@else<td colspan="4">Belum ada pembelian</td>@endif</tr>@empty<tr><td colspan="6">Belum ada pembelian yang sesuai.</td></tr>@endforelse</tbody></table></div>{{ $purchases->links() }}</div>
+@endsection

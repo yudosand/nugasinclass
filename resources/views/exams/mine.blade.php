@@ -1,0 +1,18 @@
+@extends('layouts.app')
+@section('title','Paket UAS Saya - Nugasin Class')
+@section('content')
+<main class="container py-5"><div class="d-flex flex-wrap justify-content-between gap-3 mb-4"><h1 class="h3 fw-bold">{{ auth()->user()->role==='admin' ? 'Demo Simulasi UAS Admin' : 'Paket Simulasi UAS Saya' }}</h1><a class="btn btn-outline-primary rounded-pill" href="{{ auth()->user()->role==='admin' ? route('admin.exams.index') : route('landing.simulasi') }}">{{ auth()->user()->role==='admin' ? 'Kembali ke Backoffice' : 'Tambah Paket' }}</a></div>
+@include('partials.form-errors')
+@if(auth()->user()->role==='admin')
+<div class="alert alert-info">Mode Demo Admin. Uji paket draft maupun aktif tanpa pembelian. Demo tidak mencatat pemasukan atau pembagian Cuanin.</div>
+<div class="row g-3 mb-4">@foreach($demoCatalog as $item)<div class="col-lg-6"><div class="card rounded-4 p-4 h-100"><h2 class="h5">{{ $item->title }}</h2><p class="small text-secondary">{{ $item->code }} · {{ $item->published ? 'Aktif' : 'Draft' }}</p><div class="d-flex gap-2 flex-wrap"><form method="POST" action="{{ route('exams.open',$item->id) }}">@csrf<button class="btn btn-outline-primary rounded-pill">Demo Belajar</button></form><form method="POST" action="{{ route('exams.start',$item->id) }}">@csrf<button class="btn btn-primary rounded-pill">Demo Ujian</button></form></div></div></div>@endforeach</div>
+@endif
+<div class="row g-4">@forelse($purchases as $purchase)@php($order=$orders[$purchase->order_id])
+<div class="col-lg-6"><div class="card rounded-4 shadow-sm border-0 h-100"><div class="card-body p-4"><span class="text-primary small">{{ $purchase->code }}</span><h2 class="h5 fw-bold">{{ $purchase->title }}</h2><p>{{ $order->order_number }} · Rp {{ number_format($order->amount,0,',','.') }}</p>
+@if(\App\Support\Exams::paid($order))<span class="badge bg-success mb-3">Akses aktif</span><div class="d-flex gap-2 flex-wrap"><form method="POST" action="{{ route('exams.open',$purchase->catalog_id) }}">@csrf<button class="btn btn-outline-primary rounded-pill">Belajar Soal & Jawaban</button></form><form method="POST" action="{{ route('exams.start',$purchase->catalog_id) }}">@csrf<button class="btn btn-primary rounded-pill">Mulai / Lanjut Ujian</button></form></div>
+@else<p class="text-secondary">{{ $order->payment_label }}. Akses dibuka setelah pembayaran lunas dan disetujui admin.</p><a href="{{ route('payment.show',$order->id) }}" class="btn btn-primary rounded-pill">Pembayaran & Konfirmasi WhatsApp</a>@endif
+</div></div></div>@empty @if(auth()->user()->role!=='admin')<p>Belum ada paket yang dibeli. Pilih mata kuliah melalui tombol Tambah Paket.</p>@endif
+@endforelse</div>
+@if($attempts->isNotEmpty())<div class="card rounded-4 p-4 mt-4"><h2 class="h5 fw-bold">Riwayat Ujian</h2><div class="table-responsive"><table class="table"><thead><tr><th>Ujian</th><th>Selesai</th><th>Jawaban benar</th><th>Aksi</th></tr></thead><tbody>@foreach($attempts as $attempt)<tr><td>#{{ $attempt->id }}</td><td>{{ \Carbon\Carbon::parse($attempt->finished_at)->timezone('Asia/Jakarta')->format('d M Y H:i') }} WIB</td><td>{{ $attempt->correct }} / {{ count(array_filter(json_decode($attempt->questions,true),fn($q)=>!empty($q['answer']))) }} soal dinilai</td><td><form method="POST" action="{{ route('exams.reopen',$attempt->id) }}">@csrf<button class="btn btn-sm btn-outline-primary rounded-pill">Lihat Hasil</button></form></td></tr>@endforeach</tbody></table></div></div>@endif
+<p class="small text-secondary mt-4">Satu sesi belajar/ujian aktif per akun. Gunakan Tutup Akses sebelum berpindah perangkat.</p></main>
+@endsection

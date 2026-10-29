@@ -1,0 +1,5 @@
+.marketing-poster{width:auto;max-height:650px;object-fit:contain}
+[data-bs-theme="dark"] .text-secondary{color:#adb5bd!important}
+[data-bs-theme="dark"] .text-primary{color:#6ea8fe!important}
+[data-bs-theme="dark"] .btn-outline-primary{color:#6ea8fe;border-color:#6ea8fe}
+[data-bs-theme="dark"] .navbar-brand img{background:#fff;border-radius:6px;padding:4px}

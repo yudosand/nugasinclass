@@ -1,0 +1,9 @@
+document.querySelectorAll('.exam-protected').forEach(el=>{el.addEventListener('contextmenu',event=>event.preventDefault());el.addEventListener('dragstart',event=>event.preventDefault());});
+document.querySelectorAll('.exam-protected img').forEach(img=>{const button=document.createElement('button');button.type='button';button.className='btn btn-sm btn-outline-secondary rounded-pill mb-2';button.textContent='Perbesar gambar';button.addEventListener('click',()=>{const zoomed=img.classList.toggle('is-zoomed');button.textContent=zoomed?'Kecilkan gambar · geser untuk membaca':'Perbesar gambar';});img.parentElement.before(button);});
+document.addEventListener('visibilitychange',()=>document.querySelectorAll('.exam-protected').forEach(el=>el.classList.toggle('is-hidden',document.hidden)));
+document.querySelector('[data-confirm-finish]')?.addEventListener('click',event=>{if(!confirm('Selesaikan ujian? Jawaban tidak dapat diubah setelah ini.'))event.preventDefault();});
+const timer=document.getElementById('exam-timer');
+if(timer){let done=false;const deadline=performance.now()+Number(timer.dataset.seconds)*1000;const tick=()=>{const left=Math.max(0,Math.floor((deadline-performance.now())/1000));timer.textContent=`${Math.floor(left/60)}:${String(left%60).padStart(2,'0')}`;if(left===0&&!done){done=true;location.reload();}};tick();setInterval(tick,1000);}
+// Keep long reading/essay sessions alive only while this page is visible.
+const heartbeat=document.body.dataset.heartbeat;
+if(heartbeat)setInterval(async()=>{if(document.hidden)return;try{const response=await fetch(heartbeat,{method:'POST',credentials:'same-origin',headers:{'X-CSRF-TOKEN':document.body.dataset.csrf,'Accept':'application/json'}});if(response.status===403||response.status===401||response.status===419){document.querySelectorAll('.exam-protected').forEach(el=>el.classList.add('is-hidden'));}}catch{/* Preserve unsaved answers during a temporary network failure. */}},120000);
