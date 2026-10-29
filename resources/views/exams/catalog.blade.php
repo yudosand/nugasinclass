@@ -5,6 +5,11 @@
   <div class="d-flex flex-wrap justify-content-between gap-3 mb-4"><div><span class="badge bg-primary-subtle text-primary mb-2">Belajar & Uji Kemampuan</span><h1 class="fw-bold">Simulasi UAS</h1><p class="text-secondary">Pilih mata kuliah, bayar melalui QRIS, lalu konfirmasi ke admin untuk membuka akses.</p></div><div>@auth<a class="btn btn-primary rounded-pill" href="{{ route('exams.mine') }}">Paket Saya</a>@else<a class="btn btn-outline-primary rounded-pill" href="{{ route('exams.login') }}">Masuk</a> <a class="btn btn-primary rounded-pill" href="{{ route('exams.register') }}">Daftar Simulasi UAS</a>@endauth</div></div>
   <p class="small text-secondary">Dua mode dalam satu paket: membaca materi sumber dan ujian interaktif. Skor otomatis hanya untuk soal dengan kunci yang tersedia; soal uraian dan kunci yang belum terbaca ditinjau mandiri. Materi bersumber dari bank latihan, bukan soal atau kunci UAS resmi.</p>
   @include('partials.form-errors')
+  <form method="GET" action="{{ route('landing.simulasi') }}" class="mb-4" role="search">
+    <label for="exam_search" class="form-label fw-semibold">Cari paket soal</label>
+    <div class="d-flex gap-2"><input id="exam_search" type="search" name="q" value="{{ $search }}" maxlength="120" class="form-control" placeholder="Nama mata kuliah atau kode, misalnya Basis Data / STSI4105"><button class="btn btn-primary">Cari</button>@if($search!=='')<a href="{{ route('landing.simulasi') }}" class="btn btn-outline-secondary">Reset</a>@endif</div>
+    @if($search!=='')<p class="small text-secondary mt-2" role="status">{{ $catalog->count() }} paket ditemukan untuk “{{ $search }}”.</p>@endif
+  </form>
   <div class="row g-4">
     @forelse($catalog as $item)
       @php($questions=\App\Support\Exams::questions($item))
@@ -20,7 +25,7 @@
           <button class="btn btn-primary rounded-pill w-100">Beli Paket</button></form>
         @else<a class="btn btn-primary rounded-pill mt-auto" href="{{ route('exams.register') }}">Daftar & Pilih Paket</a>@endauth
       </div></article></div>
-    @empty<div class="col"><div class="alert alert-info">Paket soal sedang disiapkan. Silakan cek kembali setelah paket diaktifkan.</div></div>@endforelse
+    @empty<div class="col"><div class="alert alert-info">{{ $search!=='' ? 'Tidak ada paket yang cocok. Coba nama mata kuliah atau kode lainnya.' : 'Paket soal sedang disiapkan. Silakan cek kembali setelah paket diaktifkan.' }}</div></div>@endforelse
   </div>
 </main>
 @endsection

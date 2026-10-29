@@ -36,6 +36,80 @@ class ExamsTest extends TestCase
         $data=[];foreach($items as $item)$data[$item->id]=['price'=>35000,'published'=>0,'duration_minutes'=>45,'questions_per_attempt'=>30,'revision'=>\App\Http\Controllers\Admin\ExamManagementController::revision($item)];
         return ['packages'=>$data];
     }
+    public function test_catalog_search_matches_title_and_code_without_exposing_drafts():void
+    {
+        $c=$this->catalog();
+        $this->get('/simulasi?q=uJi')->assertOk()->assertSee('Paket Uji')->assertSee('1 paket ditemukan');
+        $this->get('/simulasi?q=test1001')->assertOk()->assertSee('Paket Uji');
+        $this->get('/simulasi?q=tidakada')->assertOk()->assertDontSee('Paket Uji')->assertSee('Tidak ada paket yang cocok');
+        $this->get('/simulasi?q=%25')->assertOk()->assertDontSee('Paket Uji');
+        DB::table('exam_catalog')->where('id',$c->id)->update(['published'=>false]);
+        $this->get('/simulasi?q=test1001')->assertOk()->assertDontSee('Paket Uji');
+    }
+    public function test_client_test_purchase_full_flow_is_private_and_never_posts_money():void
+    {
+        CuaninSchema::ensureCreated();CashSchema::ensure();DB::table('cash_state')->where('id',1)->update(['active'=>true]);
+        $admin=$this->user('admin');$c=$this->catalog();Storage::fake('local');
+        $this->post('/simulasi/daftar',['name'=>'Peserta Uji','nomor_hp'=>'081234567890','password'=>'TestPass123!','password_confirmation'=>'TestPass123!','terms_accepted'=>1,'terms_version'=>ServiceTerms::VERSION])->assertRedirect('/simulasi')->assertSessionHasNoErrors();
+        $student=User::where('nomor_hp','081234567890')->firstOrFail();$this->loginAs($student);
+        $this->post('/simulasi/paket/'.$c->id.'/beli',['terms_accepted'=>1,'terms_version'=>ServiceTerms::VERSION,'test'=>true])->assertRedirect();
+        $o=Order::firstOrFail();$this->assertFalse($o->is_test_order);
+        $this->post('/simulasi/paket/'.$c->id.'/buka')->assertForbidden();
+        $mark=['action'=>'mark','current_password'=>'TestPass123!','confirmed'=>1,'reason'=>'Pengujian tanpa uang nyata'];
+        $this->post('/admin/orders/'.$o->id.'/test',$mark)->assertForbidden();
+        $this->loginAs($admin)->post('/admin/orders/'.$o->id.'/test',[...$mark,'current_password'=>'wrong'])->assertSessionHasErrors('current_password');
+        $this->post('/admin/orders/'.$o->id.'/test',$mark)->assertRedirect()->assertSessionHasNoErrors();
+        $approve=['action'=>'approve','current_password'=>'TestPass123!','confirmed'=>1,'simulated_amount'=>1000];
+        $this->post('/admin/orders/'.$o->id.'/test',$approve)->assertSessionHasErrors('order');
+        $this->loginAs($student)->get('/payment/'.$o->id)->assertOk()->assertSee('TRANSAKSI UJI')->assertDontSee('Pembayaran QRIS');
+        $this->post('/payment/'.$o->id.'/upload',['payment_proof'=>UploadedFile::fake()->image('uji.png')],['Accept'=>'application/json'])->assertOk()->assertJson(['redirect'=>route('payment.show',$o->id)]);
+        $this->get('/payment/'.$o->id)->assertOk()->assertSee('TIDAK%20ADA%20TRANSFER%20UANG')->assertSee('wa.me/');
+        $this->get('/payment/'.$o->id.'/proof')->assertOk();
+        $this->post('/simulasi/paket/'.$c->id.'/buka')->assertForbidden();
+        $this->loginAs($this->user())->get('/payment/'.$o->id.'/proof')->assertForbidden();
+        $this->post('/payment/'.$o->id.'/upload',['payment_proof'=>UploadedFile::fake()->image('uji.png')],['Accept'=>'application/json'])->assertForbidden();
+        $this->loginAs($admin)->post('/admin/orders/'.$o->id.'/test',[...$approve,'simulated_amount'=>26000])->assertSessionHasErrors('simulated_amount');
+        $this->post('/admin/orders/'.$o->id.'/test',$approve)->assertRedirect()->assertSessionHasNoErrors();
+        $this->post('/admin/orders/'.$o->id.'/test',$approve)->assertRedirect()->assertSessionHasNoErrors();
+        $this->assertTrue(Exams::paid($o->fresh()));
+        $receipt=['amount'=>1000,'reference'=>'NOT-REAL','received_at'=>now()->subMinute()->timezone('Asia/Jakarta')->format('Y-m-d\TH:i'),'request_key'=>(string)\Illuminate\Support\Str::uuid(),'verified'=>1,'current_password'=>'TestPass123!'];
+        $this->post('/admin/orders/'.$o->id.'/receipts',$receipt)->assertSessionHasErrors('order');
+        $this->get('/admin/orders/'.$o->id)->assertOk()->assertSee('Nominal simulasi:')->assertDontSee('Catat Pembayaran Diterima');
+        $this->loginAs($student)->post('/simulasi/paket/'.$c->id.'/buka')->assertRedirect();
+        $this->get('/simulasi/paket/'.$c->id.'/halaman/1')->assertOk()->assertHeader('Content-Type','image/jpeg');
+        $this->post('/simulasi/paket/'.$c->id.'/mulai')->assertRedirect();$attempt=DB::table('exam_attempts')->value('id');
+        $this->post('/simulasi/ujian/'.$attempt,['index'=>0,'next'=>0,'answer'=>'C','finish'=>1])->assertRedirect();
+        $this->assertDatabaseHas('exam_attempts',['id'=>$attempt,'correct'=>1]);
+        $this->get('/simulasi/ujian/'.$attempt)->assertOk()->assertSee('Hasil Ujian');
+        foreach(['cash_receipts','cash_allocations','cash_entries','cuanin_entries','cuanin_settlements'] as $table) $this->assertDatabaseCount($table,0);
+        $this->assertEquals(0,DB::table('cuanin_wallets')->sum('balance'));
+        $this->assertEquals(0,\App\Support\CashReport::data()['outstanding']);
+        $this->assertCount(0,\App\Support\CashReport::data()['debts']);
+        $this->assertArrayNotHasKey($o->id,\App\Support\CashLedger::sources());
+        $this->assertEquals(25000,$o->fresh()->amount);$this->assertEquals(0,$o->fresh()->received_amount);
+        $this->travel(61)->seconds(); // Exercise revocation in a new rate-limit window.
+        $this->loginAs($admin)->post('/admin/orders/'.$o->id.'/test',['action'=>'revoke','current_password'=>'TestPass123!','confirmed'=>1])->assertRedirect();
+        $this->post('/admin/orders/'.$o->id.'/test',$approve)->assertStatus(409);
+        $this->loginAs($student)->get('/simulasi/paket/'.$c->id.'/halaman/1')->assertForbidden();
+        $this->assertFalse(Exams::paid($o->fresh()));
+    }
+    public function test_verified_real_money_cannot_be_converted_to_test_order():void
+    {
+        CuaninSchema::ensureCreated();CashSchema::ensure();DB::table('cash_state')->where('id',1)->update(['active'=>true]);
+        $admin=$this->user('admin');$c=$this->catalog();$o=Exams::buy($this->user(),$c->id);
+        $receipt=['amount'=>1000,'reference'=>'REAL-PARTIAL','received_at'=>now()->subMinute()->timezone('Asia/Jakarta')->format('Y-m-d\TH:i'),'request_key'=>(string)\Illuminate\Support\Str::uuid(),'verified'=>1,'current_password'=>'TestPass123!'];
+        $this->loginAs($admin)->post('/admin/orders/'.$o->id.'/receipts',$receipt)->assertSessionHasNoErrors();
+        $this->post('/admin/orders/'.$o->id.'/test',['action'=>'mark','current_password'=>'TestPass123!','confirmed'=>1,'reason'=>'Not allowed for real money'])->assertSessionHasErrors('order');
+        $this->assertFalse($o->fresh()->is_test_order);$this->assertEquals(1000,$o->fresh()->received_amount);
+    }
+    public function test_json_upload_reports_bad_files_without_changing_order():void
+    {
+        $c=$this->catalog();$u=$this->user();$o=Exams::buy($u,$c->id);Storage::fake('local');$this->loginAs($u);
+        $this->post('/payment/'.$o->id.'/upload',[],['Accept'=>'application/json'])->assertUnprocessable()->assertJsonValidationErrors('payment_proof');
+        $this->post('/payment/'.$o->id.'/upload',['payment_proof'=>UploadedFile::fake()->image('large.jpg')->size(5121)],['Accept'=>'application/json'])->assertUnprocessable();
+        $this->post('/payment/'.$o->id.'/upload',['payment_proof'=>UploadedFile::fake()->create('bad.html',2,'text/html')],['Accept'=>'application/json'])->assertUnprocessable();
+        $this->assertNull($o->fresh()->payment_proof);$this->assertEquals('pending',$o->fresh()->payment_status);
+    }
     public function test_bulk_save_is_atomic_preserves_old_orders_and_detects_stale_or_incomplete_forms():void
     {
         $first=$this->catalog();$o=$this->paid($this->user(),$first);

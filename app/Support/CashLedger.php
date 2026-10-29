@@ -15,7 +15,7 @@ class CashLedger
     {
         $sources = [];
         $admins = User::where('role', 'admin')->where('status', 'approved')->orderBy('id')->pluck('id')->all();
-        $orders = Order::with('user')->orderBy('id')->get()->keyBy('id');
+        $orders = ExamTestOrders::exclude(Order::with('user'))->orderBy('id')->get()->keyBy('id');
         $settlements = DB::table('cuanin_settlements')->orderBy('id')->get()->keyBy('order_id');
         $referrals = DB::table('order_referrals')->get()->keyBy('order_id');
         foreach ($orders->keys()->merge($settlements->keys())->unique()->sort()->values() as $id) {
@@ -122,6 +122,7 @@ class CashLedger
                 abort_unless((int) $existing->order_id === $order->id && (int) $existing->amount === (int) $data['amount'], 409); return;
             }
             $order = Order::lockForUpdate()->findOrFail($order->id);
+            ExamTestOrders::assertReal($order);
             if (DB::table('cash_receipts')->where('reference', $data['reference'])->exists()) throw ValidationException::withMessages(['reference' => 'Referensi transfer ini sudah dicatat. Periksa riwayat agar tidak menghitung dua kali.']);
             $account = self::account($order);
             $amount = (int) $data['amount'];
@@ -155,6 +156,7 @@ class CashLedger
                 return;
             }
             $order = Order::lockForUpdate()->findOrFail($id);
+            ExamTestOrders::assertReal($order);
             $oldTotal = Cuanin::rupiah($order->amount); $newTotal = (int) $data['new_total'];
             if (Exams::isOrder($id) && (int)$data['package_id'] !== (int)$order->package_id) throw ValidationException::withMessages(['package_id'=>'Paket soal pada pembelian UAS tidak dapat diganti. Buat pembelian terpisah untuk mata kuliah lain.']);
             if ($oldTotal !== (int) $data['expected_total'] || (int) $order->package_id !== (int) $data['expected_package_id']) {
@@ -189,6 +191,7 @@ class CashLedger
 
     public static function account(Order $order): array
     {
+        ExamTestOrders::assertReal($order);
         $existing = DB::table('cash_accounts')->where('order_id', $order->id)->first();
         if ($existing && (int) $existing->total !== Cuanin::rupiah($order->amount)) throw ValidationException::withMessages(['cash' => 'Harga order berbeda dari catatan kas. Periksa perubahan harga sebelum mencatat pembayaran.']);
         if (!$existing) {

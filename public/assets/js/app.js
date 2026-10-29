@@ -82,6 +82,19 @@
   };
 
   document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('[data-password-toggle]').forEach(button => {
+      button.addEventListener('click', () => {
+        const input = document.getElementById(button.dataset.passwordToggle);
+        if (!input) return;
+        const visible = input.type === 'password';
+        input.type = visible ? 'text' : 'password';
+        button.setAttribute('aria-pressed', String(visible));
+        button.setAttribute('aria-label', visible ? 'Sembunyikan password' : 'Tampilkan password');
+        button.title = button.getAttribute('aria-label');
+        button.querySelector('[data-eye-slash]')?.setAttribute('style', visible ? '' : 'display:none');
+      });
+      button.querySelector('[data-eye-slash]')?.setAttribute('style', 'display:none');
+    });
     setYear();
     setActiveNav();
     initTheme();

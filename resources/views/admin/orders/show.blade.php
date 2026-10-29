@@ -10,7 +10,7 @@
 </div>
 
 <div class="row g-4">
-  <div class="col-12">@include('partials.form-errors')@if($cashReady)@include('admin.cash.order')@else<div class="alert alert-info"><a href="{{ route('admin.cash.setup') }}">Cocokkan kas awal</a> untuk mulai mencatat pembayaran sesuai nominal nyata.</div>@include('admin.orders.distribution')@endif</div>
+  <div class="col-12">@include('partials.form-errors')@include('admin.orders.test-order')@if(!$order->is_test_order)@if($cashReady)@include('admin.cash.order')@else<div class="alert alert-info"><a href="{{ route('admin.cash.setup') }}">Cocokkan kas awal</a> untuk mulai mencatat pembayaran sesuai nominal nyata.</div>@include('admin.orders.distribution')@endif @endif</div>
   <!-- Detail Order & Client -->
   <div class="col-12 col-lg-6">
     <div class="card border-0 shadow-sm rounded-4 bg-body mb-4">
@@ -63,6 +63,7 @@
     </div>
 
     <!-- Action Buttons -->
+    @if(!$order->is_test_order)
     <div class="card border-0 shadow-sm rounded-4 bg-body">
       <div class="card-body p-4">
         <h5 class="fw-bold mb-3">Aksi Admin</h5>
@@ -95,6 +96,7 @@
         </div>
       </div>
     </div>
+    @endif
   </div>
 
   <!-- Preview Bukti Pembayaran -->

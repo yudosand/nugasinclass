@@ -11,6 +11,7 @@ class CuaninSettlement
     // Called inside the same transaction as approval, after acquiring the global Cuanin lock.
     public static function distribute(Order $order): void
     {
+        ExamTestOrders::assertReal($order);
         if (DB::table('cuanin_settlements')->where('order_id', $order->id)->exists()) return;
         $gross = Cuanin::rupiah($order->amount);
         $admins = User::where('role', 'admin')->where('status', 'approved')->orderBy('id')->lockForUpdate()->get();

@@ -11,8 +11,12 @@ class ExamController extends Controller
 {
     public function index(Request $request)
     {
+        $request->validate(['q'=>'nullable|string|max:120']);
+        $search=trim((string)$request->input('q',''));
         $catalog=ExamSchema::ready()?DB::table('exam_catalog')->join('packages','packages.id','=','exam_catalog.package_id')->where('published',true)->where('price','>',0)->select('exam_catalog.*','packages.price')->orderBy('title')->get():collect();
-        return view('exams.catalog',compact('catalog'));
+        // Literal matching: % and _ are ordinary search characters, not SQL wildcards.
+        if ($search!=='') $catalog=$catalog->filter(fn($item)=>str_contains(mb_strtolower($item->title.' '.$item->code),mb_strtolower($search)));
+        return view('exams.catalog',compact('catalog','search'));
     }
     public function registerForm() { return view('exams.register'); }
     public function register(Request $request)

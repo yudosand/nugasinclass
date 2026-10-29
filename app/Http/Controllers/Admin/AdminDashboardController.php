@@ -16,8 +16,8 @@ class AdminDashboardController extends Controller
     {
         ClientHandlerSchema::ensure();
         $totalClients = User::where('role', 'client')->count();
-        $pendingPayments = Order::where('payment_status', 'paid')->count();
-        $approvedOrders = Order::where('payment_status', 'approved')->count();
+        $pendingPayments = \App\Support\ExamTestOrders::exclude(Order::where('payment_status', 'paid'))->count();
+        $approvedOrders = \App\Support\ExamTestOrders::exclude(Order::where('payment_status', 'approved'))->count();
         $totalPackages = Package::where('is_active', true)->count();
 
         $recentOrders = Order::with(['user', 'package'])->latest()->take(10)->get();

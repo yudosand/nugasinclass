@@ -125,7 +125,7 @@
   </footer>
 
   <script src="{{ asset('assets/js/bootstrap-5.3.3.bundle.min.js') }}"></script>
-  <script src="{{ asset('assets/js/app.js') }}" defer></script>
+  <script src="{{ asset('assets/js/app.js') }}?v=20261029-2" defer></script>
   @stack('scripts')
 </body>
 </html>

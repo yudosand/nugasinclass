@@ -14,6 +14,7 @@ class Exams
     public static function catalog(int $id): object { abort_unless(ExamSchema::ready(),404);$row=DB::table('exam_catalog')->find($id); abort_unless($row,404); return $row; }
     public static function paid(Order $order): bool
     {
+        if ($test=ExamTestOrders::get($order->id)) return $order->payment_status==='approved' && $test->approved_at && !$test->revoked_at;
         if ($order->payment_status !== 'approved') return false;
         if (CashSchema::installed() && !CashSchema::active()) return false;
         return !CashSchema::active() || $order->outstanding_amount === 0;

@@ -61,7 +61,7 @@
               </td>
               <td><span class="badge bg-primary-subtle text-primary rounded-pill">{{ $ord->package->name }}</span></td>
               <td><div class="fw-bold text-primary">Rp {{ number_format($ord->amount, 0, ',', '.') }}</div>
-                @if($cashReady)<div class="small">Diterima: {{ \App\Support\Cuanin::format($ord->received_amount) }}<br>Sisa: {{ \App\Support\Cuanin::format($ord->outstanding_amount) }}</div>@endif
+                @if($ord->is_test_order)<div class="small text-warning-emphasis">Uji — harga acuan, tanpa uang masuk</div>@elseif($cashReady)<div class="small">Diterima: {{ \App\Support\Cuanin::format($ord->received_amount) }}<br>Sisa: {{ \App\Support\Cuanin::format($ord->outstanding_amount) }}</div>@endif
                 @if($ord->relationLoaded('distribution') && $ord->distribution)
                 <div class="small text-secondary">Pool admin dibagi {{ $ord->distribution->admin_count }}: {{ \App\Support\Cuanin::format($ord->distribution->admin_pool) }}<br>Referral: {{ \App\Support\Cuanin::format($ord->distribution->commission) }}<br>Bonus: {{ \App\Support\Cuanin::format($ord->distribution->bonus) }}</div>
                 @endif
@@ -74,7 +74,9 @@
                 @endif
               </td>
               <td>
-                @if($cashReady)
+                @if($ord->is_test_order)
+                  <span class="badge bg-warning text-dark">{{ $ord->payment_label }}</span>
+                @elseif($cashReady)
                   <span class="badge {{ $ord->outstanding_amount === 0 ? 'bg-success' : 'bg-warning text-dark' }}">{{ $ord->payment_label }}</span>@if($ord->payment_status === 'paid')<div class="small">Bukti menunggu verifikasi</div>@endif
                 @elseif($ord->payment_status === 'paid')
                   <span class="badge bg-warning text-dark rounded-pill">Perlu Verifikasi</span>

@@ -58,6 +58,7 @@ class OrderPaymentController extends Controller
             Cuanin::lock();
             abort_if(\App\Support\CashSchema::installed(), 409, 'Pencatatan kas sudah disiapkan. Muat ulang order dan gunakan form pembayaran diterima.');
             $order = Order::lockForUpdate()->findOrFail($id);
+            \App\Support\ExamTestOrders::assertReal($order);
             if ($order->payment_status === 'approved') return $order;
             if ($order->payment_status !== 'paid' || !$order->payment_proof) throw ValidationException::withMessages(['order' => 'Pembayaran harus sudah memiliki bukti dan menunggu verifikasi.']);
             CuaninSettlement::distribute($order);

@@ -99,6 +99,10 @@ class PaymentController extends Controller
             }
         }
 
+        if ($request->expectsJson()) {
+            $request->session()->flash('success', 'Bukti pembayaran berhasil di-upload! Silakan konfirmasi melalui WhatsApp.');
+            return response()->json(['redirect' => route('payment.show', $order->id)]);
+        }
         return redirect()->route('payment.show', ['order' => $order->id])
             ->with('success', 'Bukti pembayaran berhasil di-upload! Silakan klik tombol konfirmasi WhatsApp untuk menghubungi admin.');
     }

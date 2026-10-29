@@ -41,9 +41,11 @@ class Order extends Model
         if (!$this->relationLoaded('cashAccount') && !\App\Support\CashSchema::active()) return null;
         return (int) ($this->cashAccount?->received ?? 0);
     }
-    public function getOutstandingAmountAttribute(): int { return max(0, \App\Support\Cuanin::rupiah($this->amount) - ($this->received_amount ?? 0)); }
+    public function getIsTestOrderAttribute(): bool { return (bool) \App\Support\ExamTestOrders::get($this->id); }
+    public function getOutstandingAmountAttribute(): int { return $this->is_test_order ? 0 : max(0, \App\Support\Cuanin::rupiah($this->amount) - ($this->received_amount ?? 0)); }
     public function getPaymentLabelAttribute(): string
     {
+        if ($test=\App\Support\ExamTestOrders::get($this->id)) return $test->revoked_at ? 'Uji — akses dicabut' : ($test->approved_at ? 'Uji — akses aktif' : 'Uji — menunggu persetujuan');
         $received = $this->received_amount;
         if ($received !== null) {
             if ($this->outstanding_amount === 0) return 'Lunas';

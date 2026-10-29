@@ -141,6 +141,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', AdminMiddleware::cla
     Route::post('/cash/commit', [\App\Http\Controllers\Admin\CashController::class, 'commit'])->middleware('throttle:6,1,cash:')->name('cash.commit');
     Route::post('/cash/note', [\App\Http\Controllers\Admin\CashController::class, 'note'])->name('cash.note');
     Route::post('/orders/{id}/receipts', [\App\Http\Controllers\Admin\CashController::class, 'receipt'])->middleware('throttle:10,1,cash-receipt:')->name('orders.receipts');
+    Route::post('/orders/{id}/test', [\App\Http\Controllers\Admin\ExamTestOrderController::class, 'update'])->middleware('throttle:6,1,exam-test:')->name('orders.test');
     Route::post('/orders/{id}/correction', [\App\Http\Controllers\Admin\CashController::class, 'correctOrder'])->middleware('throttle:6,1,cash-correction:')->name('orders.correction');
     Route::post('/orders/{id}/split/preview', [\App\Http\Controllers\Admin\CashSplitController::class, 'preview'])->middleware('throttle:10,1,split-preview:')->name('orders.split.preview');
     Route::get('/orders/{id}/split/preview', [\App\Http\Controllers\Admin\CashSplitController::class, 'review'])->name('orders.split.review');
